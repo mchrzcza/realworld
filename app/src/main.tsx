@@ -180,6 +180,7 @@ function Home({ user }: { user: User | null }) {
   const [count, setCount] = useState(0);
   const [tags, setTags] = useState<string[]>([]);
   const [errorText, setErrorText] = useState('');
+  const [sortOrder, setSortOrder] = useState<'recent' | 'popular'>('recent');
 
   useEffect(() => {
     if (feed && !user) {
@@ -195,6 +196,9 @@ function Home({ user }: { user: User | null }) {
   }, [feed, pageNumber, tag, user]);
 
   const pageCount = Math.ceil(count / 10);
+  const visibleArticles = [...articles].sort((left, right) => sortOrder === 'popular'
+    ? right.favoritesCount - left.favoritesCount
+    : Date.parse(left.createdAt) - Date.parse(right.createdAt));
   const pageHref = (number: number) => {
     const params = new URLSearchParams();
     if (feed) params.set('feed', 'following');
@@ -207,13 +211,21 @@ function Home({ user }: { user: User | null }) {
     {!tag && <section className="banner"><div className="container"><h1>conduit</h1><p>A place to share your knowledge.</p></div></section>}
     <div className="container home-grid">
       <section className="feed-column">
-        <div className="feed-toggle">
-          <a className={`nav-link ${feed ? '' : !tag ? 'active' : ''}`} href="/">Global Feed</a>
-          {user && <a className={`nav-link ${feed ? 'active' : ''}`} href="/?feed=following">Your Feed</a>}
-          {tag && <a className="nav-link active" href={`/tag/${encodeURIComponent(tag)}`}>{tag}</a>}
+        <div className="feed-controls">
+          <div className="feed-toggle">
+            <a className={`nav-link ${feed ? '' : !tag ? 'active' : ''}`} href="/">Global Feed</a>
+            {user && <a className={`nav-link ${feed ? 'active' : ''}`} href="/?feed=following">Your Feed</a>}
+            {tag && <a className="nav-link active" href={`/tag/${encodeURIComponent(tag)}`}>{tag}</a>}
+          </div>
+          <label className="feed-sort">Sort by
+            <select value={sortOrder} onChange={event => setSortOrder(event.currentTarget.value === 'popular' ? 'popular' : 'recent')}>
+              <option value="recent">Recent</option>
+              <option value="popular">Most Liked</option>
+            </select>
+          </label>
         </div>
         {errorText && <p role="alert">{errorText}</p>}
-        {articles.length ? articles.map(article => <ArticlePreview key={article.slug} article={article} user={user} />) :
+        {visibleArticles.length ? visibleArticles.map(article => <ArticlePreview key={article.slug} article={article} user={user} />) :
           <div className="empty-feed-message">{feed ? <>Your feed is empty. <a href="/">Browse the Global Feed</a> to find authors to follow.</> : 'No articles here... yet.'}</div>}
         {pageCount > 1 && <nav className="pagination" aria-label="Article pages">
           {Array.from({ length: pageCount }, (_, index) => index + 1).map(number => (
