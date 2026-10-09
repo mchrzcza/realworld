@@ -59,8 +59,24 @@ db.exec(`
 `);
 
 export async function initializeDatabase(): Promise<void> {
+  const users = ['johndoe', 'janedoe'];
+  const sampleArticles = users.map((username, index) => ({
+    slug: `${username}-welcome-to-conduit`,
+    timestamp: new Date(Date.now() - (users.length - index) * 24 * 60 * 60 * 1000).toISOString(),
+  }));
   const existing = db.query('SELECT id FROM users WHERE username = ?').get('johndoe') as { id: number } | null;
-  if (existing) return;
+  if (existing) {
+    const seededArticles = db.query(
+      'SELECT slug, created_at FROM articles WHERE slug IN (?, ?)',
+    ).all(...sampleArticles.map(article => article.slug)) as { slug: string; created_at: string }[];
+    if (seededArticles.length === sampleArticles.length && seededArticles.every(article => article.created_at === seededArticles[0]?.created_at)) {
+      const updateArticleTime = db.query('UPDATE articles SET created_at = ?, updated_at = ? WHERE slug = ?');
+      for (const article of sampleArticles) {
+        updateArticleTime.run(article.timestamp, article.timestamp, article.slug);
+      }
+    }
+    return;
+  }
 
   const seedPassword = await Bun.password.hash(crypto.randomUUID());
   const createUser = db.query('INSERT INTO users (username, email, password_hash, bio, image) VALUES (?, ?, ?, NULL, NULL)');
@@ -68,19 +84,18 @@ export async function initializeDatabase(): Promise<void> {
     'INSERT INTO articles (slug, title, description, body, author_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
   );
   const createTag = db.query('INSERT INTO article_tags (article_id, tag, position) VALUES (?, ?, ?)');
-  const timestamp = new Date().toISOString();
-  const users = ['johndoe', 'janedoe'];
 
   for (const [index, username] of users.entries()) {
+    const sampleArticle = sampleArticles[index]!;
     const result = createUser.run(username, `${username}@example.test`, seedPassword);
     const articleId = createArticle.run(
-      `${username}-welcome-to-conduit`,
+      sampleArticle.slug,
       `Welcome to Conduit from ${username}`,
       'A sample article to explore the RealWorld application.',
       'Conduit is a community for sharing ideas. Follow authors, leave comments, and save articles you enjoy.',
       Number(result.lastInsertRowid),
-      timestamp,
-      timestamp,
+      sampleArticle.timestamp,
+      sampleArticle.timestamp,
     ).lastInsertRowid;
     createTag.run(Number(articleId), index === 0 ? 'welcome' : 'community', 0);
     createTag.run(Number(articleId), 'conduit', 1);

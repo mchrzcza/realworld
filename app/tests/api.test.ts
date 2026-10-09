@@ -49,6 +49,15 @@ describe('RealWorld API', () => {
     expect(await duplicate.json()).toEqual({ errors: { username: ['has already been taken'] } });
   });
 
+  test('seeds sample articles on different dates', async () => {
+    const response = await app.request('/api/articles?limit=10');
+    const body = await response.json() as { articles: { slug: string; createdAt: string }[] };
+    const samples = body.articles.filter(article => article.slug.endsWith('-welcome-to-conduit'));
+
+    expect(samples).toHaveLength(2);
+    expect(new Set(samples.map(article => article.createdAt.slice(0, 10))).size).toBe(2);
+  });
+
   test('persists article edits, favorites and comments with ownership checks', async () => {
     const owner = await register();
     const reader = await register();
