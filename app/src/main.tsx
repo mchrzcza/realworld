@@ -285,11 +285,15 @@ function ProfilePage({ username, favorites, user }: { username: string; favorite
   const [profile, setProfile] = useState<Profile | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [count, setCount] = useState(0);
+  const [articleCount, setArticleCount] = useState(0);
   const [errorText, setErrorText] = useState('');
   const ownProfile = user?.username.toLowerCase() === username.toLowerCase();
   useEffect(() => {
     api<{ profile: Profile }>(`/profiles/${encodeURIComponent(username)}`).then(result => setProfile(result.profile))
       .catch(() => setErrorText('Profile could not be loaded.'));
+    const authorParams = new URLSearchParams({ author: username, limit: '1' });
+    api<{ articlesCount: number }>(`/articles?${authorParams}`).then(result => setArticleCount(result.articlesCount))
+      .catch(() => setErrorText('Articles could not be loaded.'));
     const params = new URLSearchParams({ limit: '10', offset: '0' });
     if (favorites) params.set('favorited', username);
     else params.set('author', username);
@@ -318,8 +322,9 @@ function ProfilePage({ username, favorites, user }: { username: string; favorite
         {avatar(profile?.image, 'user-img')}
         <h4>{profile?.username ?? username}</h4>
         <p>{profile?.bio ?? ''}</p>
+        <p>{articleCount} {articleCount === 1 ? 'article' : 'articles'}</p>
         {ownProfile ? <a className="btn btn-sm btn-outline-secondary" href="/settings">Edit Profile Settings</a> :
-          profile && <button type="button" className={`btn btn-sm ${profile.following ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={toggleFollow}>
+          profile && articleCount === 0 && <button type="button" className={`btn btn-sm ${profile.following ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={toggleFollow}>
             {profile.following ? `Unfollow ${username}` : `Follow ${username}`}
           </button>}
       </div>
