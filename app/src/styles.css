@@ -28,9 +28,12 @@ button { cursor: pointer; }
 .banner h1 { margin: 0; font-size: 3rem; font-weight: 700; text-shadow: 0 1px 3px #0003; }
 .banner p { margin: 0; font-size: 1.25rem; font-weight: 300; }
 .home-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(220px, 1fr); gap: 30px; }
-.feed-toggle { display: flex; gap: 20px; border-bottom: 1px solid #ddd; margin-bottom: 16px; }
+.feed-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #ddd; margin-bottom: 16px; }
+.feed-toggle { display: flex; gap: 20px; }
 .feed-toggle .nav-link { display: inline-block; padding: 8px 3px; }
 .feed-toggle .active { color: #5cb85c; border-bottom: 2px solid #5cb85c; }
+.feed-sort { display: flex; align-items: center; gap: 8px; color: #777; font-size: .85rem; white-space: nowrap; }
+.feed-sort select { width: auto; padding: 5px 8px; }
 .article-preview { border-bottom: 1px solid #ddd; padding: 16px 0 20px; }
 .article-meta { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; min-height: 36px; }
 .article-meta .info { display: flex; flex-direction: column; margin-right: auto; line-height: 1.2; }
