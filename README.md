@@ -31,6 +31,12 @@ These backends pass the full [API spec test suite](https://docs.realworld.show/s
 - [**Nitro + Prisma + Zod**](https://github.com/realworld-apps/nitro-prisma-zod-realworld-example-app) — TypeScript
 - [**Django Ninja**](https://github.com/c4ffein/realworld-django-ninja) — Python
 
+## Runnable full-stack example
+
+This repository also includes a Bun, Hono, SQLite, and React implementation in
+[`app/`](app/). It is built against the API contract and shared frontend tests
+in `specs/`. See the [app setup and verification guide](app/README.md).
+
 # Create a new implementation
 
 [**Create a new implementation >>>**](https://docs.realworld.show/implementation-creation/introduction/)
