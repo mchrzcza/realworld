@@ -5,10 +5,10 @@
     "app"
   ],
   "scripts": {
-    "app:build": "bun --filter realworld-fullstack run build",
-    "app:test": "bun --filter realworld-fullstack run test",
-    "app:test:api": "bun --filter realworld-fullstack run test:api",
-    "app:test:e2e": "bun --filter realworld-fullstack run test:e2e"
+    "app:build": "cd app && bun run build",
+    "app:test": "cd app && bun run test",
+    "app:test:api": "cd app && bun run test:api",
+    "app:test:e2e": "cd app && bun run test:e2e"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
