@@ -50,3 +50,6 @@ __pycache__
 
 # Local db
 dev.db
+app/data/
+app/playwright-report/
+app/test-results/

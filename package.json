@@ -1,0 +1,17 @@
+{
+  "name": "realworld-spec-workspace",
+  "private": true,
+  "workspaces": [
+    "app"
+  ],
+  "scripts": {
+    "app:build": "bun --filter realworld-fullstack run build",
+    "app:test": "bun --filter realworld-fullstack run test",
+    "app:test:api": "bun --filter realworld-fullstack run test:api",
+    "app:test:e2e": "bun --filter realworld-fullstack run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "bun-types": "^1.4.2"
+  }
+}

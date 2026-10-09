@@ -6,7 +6,12 @@
 	documentation-dev-host \
 	documentation-build \
 	documentation-preview \
-	documentation-clean
+	documentation-clean \
+	app-setup \
+	app-build \
+	app-test \
+	app-api-test \
+	app-e2e
 
 help:
 	@echo "Bruno Collection:"
@@ -20,6 +25,13 @@ help:
 	@echo "  documentation-build"
 	@echo "  documentation-preview"
 	@echo "  documentation-clean"
+	@echo ""
+	@echo "Full-stack example:"
+	@echo "  app-setup"
+	@echo "  app-build"
+	@echo "  app-test"
+	@echo "  app-api-test"
+	@echo "  app-e2e"
 
 ########################
 # Bruno Collection
@@ -50,3 +62,21 @@ documentation-preview:
 
 documentation-clean:
 	rm -rf docs/.astro docs/dist docs/node_modules
+
+########################
+# Full-stack example
+
+app-setup:
+	bun install
+
+app-build:
+	cd app && bun run build
+
+app-test:
+	cd app && bun run test
+
+app-api-test:
+	cd app && bun run test:api
+
+app-e2e:
+	cd app && bun run test:e2e

@@ -1,0 +1,26 @@
+{
+  "name": "realworld-fullstack",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "api": "bun --watch src/server.ts",
+    "web": "vite --host 127.0.0.1",
+    "dev": "bun run api & bun run web",
+    "build": "tsc --noEmit && vite build",
+    "test": "CONDUIT_DB_PATH=:memory: bun test tests",
+    "test:e2e": "playwright test --config playwright.config.ts",
+    "test:api": "HOST=http://localhost:8000 ../specs/api/run-api-tests-hurl.sh"
+  },
+  "dependencies": {
+    "hono": "^4.8.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
