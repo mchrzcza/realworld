@@ -324,7 +324,7 @@ function ProfilePage({ username, favorites, user }: { username: string; favorite
         <p>{profile?.bio ?? ''}</p>
         <p>{articleCount} {articleCount === 1 ? 'article' : 'articles'}</p>
         {ownProfile ? <a className="btn btn-sm btn-outline-secondary" href="/settings">Edit Profile Settings</a> :
-          profile && articleCount === 0 && <button type="button" className={`btn btn-sm ${profile.following ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={toggleFollow}>
+          profile && <button type="button" className={`btn btn-sm ${profile.following ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={toggleFollow}>
             {profile.following ? `Unfollow ${username}` : `Follow ${username}`}
           </button>}
       </div>
