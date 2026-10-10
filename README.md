@@ -33,9 +33,41 @@ These backends pass the full [API spec test suite](https://docs.realworld.show/s
 
 ## Runnable full-stack example
 
-This repository also includes a Bun, Hono, SQLite, and React implementation in
-[`app/`](app/). It is built against the API contract and shared frontend tests
-in `specs/`. See the [app setup and verification guide](app/README.md).
+This repository also includes a runnable Bun, Hono, SQLite, and React
+implementation in [`app/`](app/). The shared API contract and frontend tests in
+[`specs/`](specs/) remain the source of truth; the app is an example
+implementation that can be verified against them.
+
+Install dependencies from the repository root:
+
+```sh
+make app-setup
+```
+
+Then start the API and frontend in separate terminals:
+
+```sh
+cd app && bun run api
+```
+
+```sh
+cd app && bun run web
+```
+
+Open <http://localhost:5173/>. From the repository root, build and test the
+app with:
+
+```sh
+make app-build
+make app-test
+make app-api-test
+make app-e2e
+```
+
+`make app-api-test` expects the API server to be running on port 8000;
+`make app-e2e` starts both servers automatically. See the
+[app setup and verification guide](app/README.md) for database configuration
+and test prerequisites.
 
 # Create a new implementation
 
