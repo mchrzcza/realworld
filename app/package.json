@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "api": "bun --watch src/server.ts",
+    "api:verify": "bun --no-install --no-env-file src/server.ts",
     "web": "vite --host 127.0.0.1",
     "dev": "bun run api & bun run web",
     "build": "tsc --noEmit && vite build",
-    "test": "CONDUIT_DB_PATH=:memory: bun test tests",
+    "test": "CONDUIT_DB_PATH=:memory: bun --no-install --no-env-file test tests",
     "test:e2e": "playwright test --config playwright.config.ts",
     "test:api": "HOST=http://localhost:8000 ../specs/api/run-api-tests-hurl.sh"
   },

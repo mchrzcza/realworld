@@ -14,13 +14,13 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   webServer: [
     {
-      command: 'bun run api',
+      command: 'bun --no-install --no-env-file run api:verify',
       url: 'http://127.0.0.1:8000/health',
       reuseExistingServer: !process.env.CI,
       timeout: 30_000,
     },
     {
-      command: 'bun run web -- --port 5173',
+      command: 'bun --no-install --no-env-file run web -- --port 5173',
       url: 'http://127.0.0.1:5173',
       reuseExistingServer: !process.env.CI,
       timeout: 30_000,

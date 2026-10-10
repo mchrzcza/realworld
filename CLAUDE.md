@@ -2,9 +2,13 @@
 
 ## What this repo is
 
-This is the **RealWorld spec & docs hub** — *not* an implementation. It defines the
-contract that every RealWorld frontend and backend adheres to, and hosts the test
-suites used to validate them. Nothing here is a runnable app.
+This fork contains a **runnable RealWorld implementation in `app/`**, alongside
+the shared spec and docs. Application bug reports about feeds, profiles, articles,
+or following belong to this implementation.
+
+- `app/` — the Bun, Hono, SQLite, and React application. Read
+  [`app/README.md`](app/README.md) for setup and verification.
+- `app/tests/` and `app/e2e/` — implementation regression tests.
 
 - `specs/api/` — the API contract: `openapi.yml` plus the **Hurl** and **Bruno** test
   suites that a backend must pass.
@@ -61,7 +65,7 @@ make documentation-build     # production build
 
 ## Answering "how do I build an implementation?"
 
-Implementations live in their **own** repos, not here. Point users to:
+For this fork, start with `app/` and its README. For other implementations, use:
 
 - Backends → validate against `specs/api/` (the OpenAPI spec + Hurl/Bruno suites).
 - Frontends → use the shared CSS theme + `specs/e2e/` (the Playwright suite + selector
