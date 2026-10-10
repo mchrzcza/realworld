@@ -49,6 +49,17 @@ test('publishes an article and comment', async ({ page }) => {
   await expect(page.locator('.card:not(.comment-form) .card-block')).toContainText(comment);
 });
 
+test('recent feed lists newer articles before older ones', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.article-preview').first()).toBeVisible();
+  const hrefs = await page.locator('.article-preview a.preview-link').evaluateAll(links => links.map(link => link.getAttribute('href')));
+  const jane = hrefs.indexOf('/article/janedoe-welcome-to-conduit');
+  const john = hrefs.indexOf('/article/johndoe-welcome-to-conduit');
+  expect(jane).toBeGreaterThanOrEqual(0);
+  expect(john).toBeGreaterThanOrEqual(0);
+  expect(jane).toBeLessThan(john);
+});
+
 test('updates the user bio in settings', async ({ page }) => {
   const user = await register(page);
   const bio = `Smoke-test bio ${Date.now()}`;
