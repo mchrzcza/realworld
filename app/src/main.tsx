@@ -198,7 +198,7 @@ function Home({ user }: { user: User | null }) {
   const pageCount = Math.ceil(count / 10);
   const visibleArticles = [...articles].sort((left, right) => sortOrder === 'popular'
     ? right.favoritesCount - left.favoritesCount
-    : Date.parse(left.createdAt) - Date.parse(right.createdAt));
+    : Date.parse(right.createdAt) - Date.parse(left.createdAt));
   const pageHref = (number: number) => {
     const params = new URLSearchParams();
     if (feed) params.set('feed', 'following');
