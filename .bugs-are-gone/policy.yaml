@@ -1,0 +1,5 @@
+version: 1
+commands:
+  prepare: "bun install --frozen-lockfile --ignore-scripts --registry=https://registry.npmjs.org"
+  build: "bun --no-install --no-env-file run app:build"
+  test: "bun --no-install --no-env-file run app:verify"

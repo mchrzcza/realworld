@@ -5,10 +5,11 @@
     "app"
   ],
   "scripts": {
-    "app:build": "cd app && bun run build",
-    "app:test": "cd app && bun run test",
+    "app:build": "cd app && bun --no-install --no-env-file run build",
+    "app:test": "cd app && bun --no-install --no-env-file run test",
+    "app:verify": "bun --no-install --no-env-file run app:test && bun --no-install --no-env-file run app:test:e2e",
     "app:test:api": "cd app && bun run test:api",
-    "app:test:e2e": "cd app && bun run test:e2e"
+    "app:test:e2e": "cd app && bun --no-install --no-env-file run test:e2e"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
