@@ -61,3 +61,49 @@ test('updates the user bio in settings', async ({ page }) => {
   ]);
   await expect(page.locator('.user-info')).toContainText(bio);
 });
+
+test('keeps profile follow controls visible after the author publishes an article', async ({ page }) => {
+  const author = uniqueUser();
+  const registration = await page.request.post('/api/users', { data: { user: author } });
+  expect(registration.status()).toBe(201);
+  const { user } = await registration.json() as { user: { token: string } };
+  const viewer = await register(page);
+  expect(viewer.username).not.toBe(author.username);
+
+  const profilePath = `/profile/${author.username}`;
+  await page.goto(profilePath);
+  const header = page.locator('.user-info');
+  await expect(header.getByText('0 articles', { exact: true })).toBeVisible();
+  await expect(header.getByRole('button', { name: `Follow ${author.username}`, exact: true })).toBeVisible();
+  await expect(header.getByRole('link', { name: 'Edit Profile Settings' })).toHaveCount(0);
+
+  const article = await page.request.post('/api/articles', {
+    headers: { Authorization: `Token ${user.token}` },
+    data: {
+      article: {
+        title: `Profile follow article ${author.username}`,
+        description: 'An article by the profile author',
+        body: 'Publishing an article should not hide profile follow controls.',
+      },
+    },
+  });
+  expect(article.status()).toBe(201);
+
+  const [profileResponse] = await Promise.all([
+    page.waitForResponse(response => response.url().endsWith(`/api/profiles/${author.username}`)),
+    page.reload(),
+  ]);
+  expect(profileResponse.status()).toBe(200);
+  expect(await profileResponse.json()).toMatchObject({
+    profile: { username: author.username, following: false },
+  });
+  await expect(page.locator(`nav a[href="/profile/${viewer.username}"]`)).toBeVisible();
+  await expect(header.getByRole('link', { name: 'Edit Profile Settings' })).toHaveCount(0);
+  await expect(header.getByText('1 article', { exact: true })).toBeVisible();
+  await expect(header.getByRole('button', { name: `Follow ${author.username}`, exact: true })).toBeVisible();
+
+  await header.getByRole('button', { name: `Follow ${author.username}`, exact: true }).click();
+  await expect(header.getByRole('button', { name: `Unfollow ${author.username}`, exact: true })).toBeVisible();
+  await header.getByRole('button', { name: `Unfollow ${author.username}`, exact: true }).click();
+  await expect(header.getByRole('button', { name: `Follow ${author.username}`, exact: true })).toBeVisible();
+});
