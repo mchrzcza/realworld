@@ -61,3 +61,46 @@ test('updates the user bio in settings', async ({ page }) => {
   ]);
   await expect(page.locator('.user-info')).toContainText(bio);
 });
+
+test('can follow and unfollow another author with a published article', async ({ page, browser, baseURL }) => {
+  const author = await register(page);
+  const title = `Profile follow article ${Date.now()}`;
+  await page.goto('/editor');
+  await page.fill('input[name="title"]', title);
+  await page.fill('input[name="description"]', 'An article by the followed author');
+  await page.fill('textarea[name="body"]', 'Published content for the profile follow regression.');
+  await Promise.all([
+    page.waitForURL(/\/article\/.+/),
+    page.click('button:has-text("Publish Article")'),
+  ]);
+  await expect(page.locator('h1')).toHaveText(title);
+
+  const viewerContext = await browser.newContext({ baseURL });
+  try {
+    const viewerPage = await viewerContext.newPage();
+    const viewer = await register(viewerPage);
+    expect(viewer.username).not.toBe(author.username);
+    const profileResponsePromise = viewerPage.waitForResponse(response =>
+      new URL(response.url()).pathname === `/api/profiles/${author.username}`
+      && response.request().method() === 'GET');
+    await viewerPage.goto(`/profile/${author.username}`);
+    const profileResponse = await profileResponsePromise;
+    expect(profileResponse.status()).toBe(200);
+    expect((await profileResponse.json()).profile.username).toBe(author.username);
+    await expect(viewerPage.locator(`nav a[href="/profile/${viewer.username}"]`)).toBeVisible();
+
+    const header = viewerPage.locator('.user-info');
+    await expect(header.locator('h4')).toHaveText(author.username);
+    await expect(header.locator('p').filter({ hasText: /^1 article$/ })).toBeVisible();
+    await expect(viewerPage.locator('.article-preview h1')).toHaveText(title);
+    const follow = header.getByRole('button', { name: `Follow ${author.username}`, exact: true });
+    await expect(follow).toBeVisible();
+    await follow.click();
+    const unfollow = header.getByRole('button', { name: `Unfollow ${author.username}`, exact: true });
+    await expect(unfollow).toBeVisible();
+    await unfollow.click();
+    await expect(follow).toBeVisible();
+  } finally {
+    await viewerContext.close();
+  }
+});
