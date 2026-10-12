@@ -61,3 +61,46 @@ test('updates the user bio in settings', async ({ page }) => {
   ]);
   await expect(page.locator('.user-info')).toContainText(bio);
 });
+
+test('can follow and unfollow an author with a published article', async ({ page, browser }) => {
+  const authorPage = await browser.newPage();
+  try {
+    const author = await register(authorPage);
+    await register(page);
+    await page.goto(`/profile/${author.username}`);
+
+    const header = page.locator('.user-info');
+    const follow = header.getByRole('button', { name: `Follow ${author.username}`, exact: true });
+    await expect(header.getByText('0 articles', { exact: true })).toBeVisible();
+    await expect(follow).toBeVisible();
+
+    await authorPage.goto('/editor');
+    await authorPage.fill('input[name="title"]', `Profile article ${Date.now()}`);
+    await authorPage.fill('input[name="description"]', 'An article by the profile author');
+    await authorPage.fill('textarea[name="body"]', 'Published content for the profile follow regression.');
+    await Promise.all([
+      authorPage.waitForURL(/\/article\/.+/),
+      authorPage.click('button:has-text("Publish Article")'),
+    ]);
+
+    const [profileResponse] = await Promise.all([
+      page.waitForResponse(response => response.url().endsWith(`/api/profiles/${author.username}`)),
+      page.reload(),
+    ]);
+    expect(profileResponse.ok()).toBe(true);
+    expect(await profileResponse.json()).toMatchObject({
+      profile: { username: author.username, following: false },
+    });
+    await expect(header.getByText('1 article', { exact: true })).toBeVisible();
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect(follow).toBeVisible();
+
+    await follow.click();
+    const unfollow = header.getByRole('button', { name: `Unfollow ${author.username}`, exact: true });
+    await expect(unfollow).toBeVisible();
+    await unfollow.click();
+    await expect(follow).toBeVisible();
+  } finally {
+    await authorPage.close();
+  }
+});
