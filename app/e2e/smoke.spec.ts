@@ -49,6 +49,29 @@ test('publishes an article and comment', async ({ page }) => {
   await expect(page.locator('.card:not(.comment-form) .card-block')).toContainText(comment);
 });
 
+test('shows the follow control for a profile with articles', async ({ page }) => {
+  const author = await register(page);
+  const title = `Profile article ${Date.now()}`;
+
+  await page.goto('/editor');
+  await page.fill('input[name="title"]', title);
+  await page.fill('input[name="description"]', 'An article for the profile');
+  await page.fill('textarea[name="body"]', 'Profile article content.');
+  await Promise.all([
+    page.waitForURL(/\/article\/.+/),
+    page.click('button:has-text("Publish Article")'),
+  ]);
+
+  await page.goto('/settings');
+  await page.click('button:has-text("logout")');
+  const viewer = await register(page);
+  await page.goto(`/profile/${author.username}`);
+
+  await expect(page.locator('.user-info')).toContainText('1 article');
+  await expect(page.getByRole('button', { name: `Follow ${author.username}` })).toBeVisible();
+  await expect(page.locator(`nav a[href="/profile/${viewer.username}"]`)).toBeVisible();
+});
+
 test('updates the user bio in settings', async ({ page }) => {
   const user = await register(page);
   const bio = `Smoke-test bio ${Date.now()}`;
